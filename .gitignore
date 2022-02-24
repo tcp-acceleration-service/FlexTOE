@@ -1,0 +1,73 @@
+# Prerequisites
+*.d
+
+# Object files
+*.o
+*.o.ur-safe
+*.ko
+*.obj
+*.elf
+*.list
+
+# ASM files
+*.S
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+*.cache.mk
+
+# NFP firmware
+*.fw
+*.uci
+*.ucp
+*.list
+
+# Editor
+.vscode
+
+# MacOS
+.DS_Store
+
+# Dependencies
+dpdk-kmods/
