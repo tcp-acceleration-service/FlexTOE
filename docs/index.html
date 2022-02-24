@@ -1,12 +1,15 @@
 <meta name="author" content="Rajath Shashidhara" />
 <meta charset="utf-8" emacsmode="-*- markdown -*-">
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style class="fallback">body{visibility: hidden;}</style>
+<link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?">
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
-<style>body{ font-family: 'Raleway', sans-serif }</style>
-<link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?">
+<style>body{font-family: 'Raleway', sans-serif}</style>
 
                 **FlexTOE: Flexible TCP Offload with Fine-Grained Parallelism**
+                [Rajath Shashidhara](https://homes.cs.washington.edu/~rajaths)^1, [Tim Stamler](https://www.cs.utexas.edu/lasr/profile.php?uid=187)^2, [Antoine Kaufmann](https://people.mpi-sws.org/~antoinek/)^3, [Simon Peter](https://homes.cs.washington.edu/~simpeter/)^1
+                ^1 University of Washington, ^2 UT Austin, ^3 MPI-SWS
                 Published at [USENIX NSDI 22](https://www.usenix.org/conference/nsdi22/presentation/shashidhara).
                 Open-Source on [GitHub](https://github.com/tcp-acceleration-service/FlexTOE) under BSD 3-Clause license.
 
@@ -24,13 +27,6 @@ Our prototype on the [Netronome Agilio-CX40](https://www.netronome.com/media/doc
 * Cuts 99.99th-percentile RPC RTT by 3.2 &#215; versus TAS.
 * C &#38; eBPF-XDP extensions: TCP tracing, VLAN stripping, flow classification, firewalling, and splicing.
 * Generalizes across architectures: single connection speed up of 2.4&#215; on x86 and 4&#215; on [BlueField](http://www.mellanox.com/related-docs/npu-multicore-processors/PB_BlueField_Ref_Platform.pdf).
-
-**Contributors:**
-
-* [Rajath Shashidhara](https://homes.cs.washington.edu/~rajaths), University of Washington
-* [Tim Stamler](https://www.cs.utexas.edu/lasr/profile.php?uid=187), The University of Texas at Austin
-* [Antoine Kaufmann](https://people.mpi-sws.org/~antoinek/), Max Planck Institute for Software Systems
-* [Simon Peter](https://homes.cs.washington.edu/~simpeter/), University of Washington
 
 <script>markdeepOptions={definitionStyle:'none', tocStyle:'none'};</script>
 <!-- Markdeep: -->
