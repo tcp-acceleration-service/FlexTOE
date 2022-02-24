@@ -1,0 +1,389 @@
+#
+# Copyright (C) 2015-2018,  Netronome Systems, Inc.  All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# @file           scripts/Makefile.templates
+# @brief          Templates for assembling, compiling, linking firmware
+#
+
+#a Useful targets
+.PHONY: all_fw
+all_fw:
+
+list:
+	@make -rpn | sed -n -e '/^$$/ { n ; /^[^ .#][^ ]*:/p ; }'
+
+#a Microcode templates
+#f microcode.assemble
+#
+# Assembler a microcode file into the firmware build directory
+#
+# @param $1	object descriptor
+# @param $2 source directory
+# @param $3 source code
+# @param $4 assembly flags
+#
+define microcode.assemble
+
+OBJ_$1__INC   += $(NFAS_BASE_INC)
+OBJ_$1__DEFS  += $(NFAS_BASE_DEFS)
+OBJ_$1__FLAGS += $(NFAS_BASE_FLAGS)
+OBJ_$1__FLAGS += $4
+OBJ_$1__LIST  = $(FW_BUILD)/$1.list
+
+$$(OBJ_$1__LIST): $2/$3 config.h
+	$(NFAS) $$(OBJ_$1__FLAGS) $$(OBJ_$1__DEFS) $$(OBJ_$1__INC) -o $$@ $$<
+
+endef
+
+#f microcode.add_flags
+#
+# Add definitions for a microcode assmbly
+#
+# @param $1	object descriptor
+# @param $2 assembly flags
+#
+define microcode.add_flags
+
+OBJ_$1__FLAGS += $2
+
+endef
+
+#f microcode.assemble_init
+#
+# Assembler a microcode file into the firmware build directory
+#
+# @param $1	object descriptor
+# @param $2 source directory
+# @param $3 source code
+# @param $4 assembly flags
+#
+define microcode.assemble_init
+
+OBJ_$1__INC   += $(NFAS_BASE_INC)
+OBJ_$1__DEFS  += $(NFAS_BASE_DEFS)
+OBJ_$1__FLAGS += $(NFAS_BASE_FLAGS)
+OBJ_$1__FLAGS += $4
+OBJ_$1__FLAGS += --codeless
+OBJ_$1__LIST  = $(FW_BUILD)/$1.list
+
+$$(OBJ_$1__LIST): $2/$3 config.h
+	$(Q)$(NFAS) $$(OBJ_$1__FLAGS) $$(OBJ_$1__DEFS) $$(OBJ_$1__INC) -o $$@ $$<
+
+endef
+
+#a Micro_c templates
+#f micro_c.compile
+#
+# Compile a micro-c file into the firmware build directory
+#
+# @param $1	object descriptor
+# @param $2	source code
+# @param $3	source directory, if other than the default directory
+#
+# The default directory is '$(me_src_dir)'
+define micro_c.compile
+
+OBJ_$1__FLAGS += $(NFCCFLAGS)
+OBJ_$1__INC   += $(NFCC_BASE_INC)
+OBJ_$1__DEFS  += $(NFCC_BASE_DEFS)
+OBJ_$1__CLIBS += $(NFCC_BASE_CLIBS)
+OBJ_$1__LIST  += $(FW_BUILD)/$1.list
+OBJ_$1__DEPENDENCIES += config.h
+
+OBJ_$1__FILES_TO_CLEAN  += $$(OBJ_$1__LIST)
+OBJ_$1__CLEAN = clean_obj_$1
+
+OBJ_$1__SRC = $3/$2
+ifeq ($3,)
+OBJ_$1__SRC = $(app_src_dir)/$2
+endif
+
+$$(OBJ_$1__LIST): $$(OBJ_$1__SRC) $$(OBJ_$1__CLIBS) $$(OBJ_$1__DEPENDENCIES)
+	$(NFCC) -Fo$(FW_BUILD)/ -Fe$$@ $$(OBJ_$1__FLAGS) $$(OBJ_$1__INC) $$(OBJ_$1__DEFS) $$(OBJ_$1__CLIBS) $$<
+
+$$(OBJ_$1__CLEAN):
+	rm -rf $$(OBJ_$1__FILES_TO_CLEAN)
+
+endef
+
+#f micro_c.add_src_lib
+#
+# Add a single source library to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	source code
+# @param $3	source directory
+#
+define micro_c.add_src_lib
+
+ifeq ($3,)
+OBJ_$1__CLIBS        += $(app_src_dir)/$2.c
+OBJ_$1__DEPENDENCIES += $(app_src_dir)/$2.c
+else
+OBJ_$1__CLIBS        += $3/$2.c
+OBJ_$1__DEPENDENCIES += $3/$2.c
+endif
+
+endef
+
+#f micro_c.add_std_lib
+#
+# Add a single standard source library to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	source code
+#
+define micro_c.add_std_lib
+
+OBJ_$1__CLIBS        += $(NFP_STD_LIB)/microc/src/$2.c
+OBJ_$1__DEPENDENCIES += $(NFP_STD_LIB)/microc/src/$2.c
+
+endef
+
+#f micro_c.add_std_libs
+#
+# Add a list of standard libraries to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	list of library names
+#
+define micro_c.add_std_libs
+
+$(foreach lib,$2,$(eval $(call micro_c.add_std_lib,$1,$(lib))))
+
+endef
+
+#f micro_c.add_fw_lib
+#
+# Add a single firmware library to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	library name
+#
+define micro_c.add_fw_lib
+
+OBJ_$1__INC   +=
+OBJ_$1__CLIBS += $(FIRMWARE_DIR)/lib/$2/lib$2.c
+
+endef
+
+#f micro_c.add_fw_libs
+#
+# Add a list of firmware libraries to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	list of library names
+#
+define micro_c.add_fw_libs
+
+$(foreach lib,$2,$(eval $(call micro_c.add_fw_lib,$1,$(lib))))
+
+endef
+
+#f micro_c.add_define
+#
+# Add a single define to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	define (i.e. the bit after '-D')
+#
+define micro_c.add_define
+
+OBJ_$1__DEFS  += -D$2
+
+endef
+
+#f micro_c.add_defines
+#
+# Add a list of defines to a Micro-c compilation
+#
+# @param $1	object descriptor
+# @param $2	list of defines (i.e. the bit after '-D')
+#
+define micro_c.add_defines
+
+$(foreach define,$2,$(eval $(call micro_c.add_define,$1,$(define))))
+
+endef
+
+#f micro_c.add_flags
+#
+# Add a string of flags to a compilation
+#
+# @param $1	object descriptor
+# @param $2	flags
+#
+define micro_c.add_flags
+
+OBJ_$1__FLAGS += $2
+
+endef
+
+#f micro_c.force_include
+#
+# Force inclusion of a header file
+#
+# @param $1	object descriptor
+# @param $2	source code
+# @param $3	source directory
+#
+define micro_c.force_include
+
+ifeq ($3,)
+OBJ_$1__DEFS  += -FI$2.h
+OBJ_$1__DEPENDENCIES += $2.h
+else
+OBJ_$1__DEFS  += -FI$3/$2.h
+OBJ_$1__DEPENDENCIES += $3/$2.h
+endif
+
+endef
+
+#f micro_c.compile_with_rtl
+#
+# Compile a micro-c file into the firmware build directory with the run-time library
+#
+# @param $1	object descriptor
+# @param $2	source code
+# @param $3	source directory, if other than the default directory
+#
+# The default directory is '$(me_src_dir)'
+define micro_c.compile_with_rtl
+$(eval $(call micro_c.compile,$1,$2,$3))
+$(eval $(call micro_c.add_src_lib,$1,rtl,$(NFP_STD_LIB)/microc/src))
+endef
+
+#a FW templates
+#f fw.link_with_rtsyms
+#
+# Create link targets to build an fw with runtime symbols enabled
+#
+# @param $1	firmware name (for .fw)
+#
+define fw.link_with_rtsyms
+$(eval $(call fw.add_rtsyms,$1))
+$(eval $(call fw.link,$1))
+endef
+
+#f fw.link
+#
+# Create link targets to build an fw
+#
+# @param $1	firmware name (for .fw)
+#
+define fw.link
+
+FW_$1__FW         := $(FW_FW)/$1.fw
+FW_$1__MAP        := $(FW_BUILD)/$1.map
+FW_$1__FILES_TO_CLEAN += $$(FW_$1__FW) $$(FW_$1__MAP)
+
+$$(FW_$1__FW): $$(FW_$1__LINK_DEPENDENCIES)
+	$(NFLD) $(NFLD_BASE_FLAGS) $$(FW_$1__LINK_FLAGS) -o $$@ -map $$(FW_$1__MAP) $$(FW_$1__ME_LOADS) $$(FW_$1__PPC_LOADS)
+
+FW_$1: $$(FW_$1__FW)
+
+all_fw: FW_$1
+
+load_$1: $$(FW_$1__FW)
+	nfp-nffw load --no-start $$(FW_$1__FW)
+
+start_$1: $$(FW_$1__FW)
+	nfp-nffw load $$(FW_$1__FW)
+
+unload_$1:
+	nfp-nffw unload
+
+.PHONY: clean_$1
+clean_$1: $$(FW_$1__CLEAN_DEPENDENCIES)
+	rm -rf $$(FW_$1__FILES_TO_CLEAN)
+	rm -rf *.obj *.list *.uci *.ucp *.out
+
+.PHONY: clean
+clean: clean_$1
+
+endef
+
+#f fw.add_init_obj
+#
+# Add an initial CSR object descriptor (list file) to an fw
+#
+# @param $1	firmware name
+# @param $2 object descriptor
+#
+define fw.add_init_obj
+
+FW_$1__LINK_DEPENDENCIES  += $$(OBJ_$2__LIST)
+FW_$1__ME_LOADS           += -L $$(OBJ_$2__LIST)
+FW_$1__CLEAN_DEPENDENCIES += $$(OBJ_$2__CLEAN)
+
+endef
+
+#f fw.add_obj_to_me
+#
+# Add an object descriptor (list file) to an fw for an ME
+#
+# @param $1	firmware name
+# @param $2 object descriptor
+# @param $3 island.me
+#
+define fw.add_obj_to_me
+
+FW_$1__LINK_DEPENDENCIES += $$(OBJ_$2__LIST)
+FW_$1__ME_LOADS          += -u $3 $$(OBJ_$2__LIST)
+
+endef
+
+#f fw.add_obj
+#
+# Add an object descriptor (list file) to an fw for a list of MEs
+#
+# @param $1	firmware name
+# @param $2 object descriptor
+# @param $3 list of island.me's
+#
+#
+define fw.add_obj
+
+FW_$1__CLEAN_DEPENDENCIES += $$(OBJ_$2__CLEAN)
+$(foreach me,$3,$(eval $(call fw.add_obj_to_me,$1,$2,$(me))))
+
+endef
+
+#f fw.add_rtsyms
+##
+# Template for adding a run-time symbol table
+#
+# @param $1	firmware name
+#
+#
+define fw.add_rtsyms
+
+FW_$1__LINK_FLAGS += -mip -rtsyms
+
+endef
+
+#f fw.add_ppc
+#
+# Add a PPC firmware object to an fw
+#
+# @param $1	firmware name
+# @param $2 i8 or i9
+# @param $3 picocode firmware filename
+#
+define fw.add_ppc
+
+FW_$1__PPC_LOADS += -i $2 -e $3
+
+endef

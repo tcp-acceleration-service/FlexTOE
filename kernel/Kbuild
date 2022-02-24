@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: BSD 3-Clause License
+# Copyright (c) 2022, University of Washington, Max Planck Institute for Software Systems, and The University of Texas at Austin
+
+ccflags-y := $(MODULE_CFLAGS)
+obj-m := flextoe_uio.o
