@@ -1,0 +1,39 @@
+<meta name="author" content="Rajath Shashidhara" />
+<meta charset="utf-8" emacsmode="-*- markdown -*-">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway&display=swap" rel="stylesheet">
+<style>body{ font-family: 'Raleway', sans-serif }</style>
+<link rel="stylesheet" href="https://casual-effects.com/markdeep/latest/apidoc.css?">
+
+                **FlexTOE: Flexible TCP Offload with Fine-Grained Parallelism**
+                Published at [USENIX NSDI 22](https://www.usenix.org/conference/nsdi22/presentation/shashidhara).
+                Open-Source on [GitHub](https://github.com/tcp-acceleration-service/FlexTOE) under BSD 3-Clause license.
+
+FlexTOE is a *flexible*, yet *high-performance* TCP offload to SmartNICs.
+
+* Eliminates almost all host data-path TCP processing.
+* Enables full customization via flexible C &#38; eBPF-XDP extensions.
+* Supports POSIX sockets and interoperates well with other stacks.
+* Robust under packet losses and congestion.
+
+Our prototype on the [Netronome Agilio-CX40](https://www.netronome.com/media/documents/PB_Agilio_CX_2x40GbE-7-20.pdf) SmartNIC shows:
+* Memcached scales up to 38% better on FlexTOE versus [TAS](https://doi.org/10.1145/3302424.3303985).
+* Saves up to 81% host CPU cycles versus [Chelsio Terminator TOE](https://www.chelsio.com/wp-content/uploads/resources/Chelsio-Terminator-6-Brief.pdf).
+* Competitive performance for RPCs, even with wimpy SmartNICs.
+* Cuts 99.99th-percentile RPC RTT by 3.2 &#215; versus TAS.
+* C &#38; eBPF-XDP extensions: TCP tracing, VLAN stripping, flow classification, firewalling, and splicing.
+* Generalizes across architectures: single connection speed up of 2.4&#215; on x86 and 4&#215; on [BlueField](http://www.mellanox.com/related-docs/npu-multicore-processors/PB_BlueField_Ref_Platform.pdf).
+
+**Contributors:**
+
+* [Rajath Shashidhara](https://homes.cs.washington.edu/~rajaths), University of Washington
+* [Tim Stamler](https://www.cs.utexas.edu/lasr/profile.php?uid=187), The University of Texas at Austin
+* [Antoine Kaufmann](https://people.mpi-sws.org/~antoinek/), Max Planck Institute for Software Systems
+* [Simon Peter](https://homes.cs.washington.edu/~simpeter/), University of Washington
+
+<script>markdeepOptions={definitionStyle:'none', tocStyle:'none'};</script>
+<!-- Markdeep: -->
+<style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style>
+<script src="https://casual-effects.com/markdeep/latest/markdeep.min.js?" charset="utf-8"></script>
+<script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
